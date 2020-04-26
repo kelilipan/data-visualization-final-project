@@ -1,6 +1,6 @@
 from bokeh.io import curdoc, output_notebook
 from bokeh.models.tools import HoverTool
-from bokeh.models import ColumnDataSource, PreText, Select, Range1d
+from bokeh.models import ColumnDataSource, PreText, Select, Range1d, RadioButtonGroup, Div
 from bokeh.plotting import figure, output_file, show
 from bokeh.layouts import column, row
 import bokeh
@@ -48,23 +48,44 @@ def make_plot(source, title, case='confirmed'):
     return plt
 
 
-def handle_region_change(attrname, old, new):
-    region = region_select.value
+def update():
     plt.title.text = case.capitalize() + " case in " + region
     newdata = create_source(region, case).data
+    print(region, case)
     source.data.update(newdata)
 
 
+def handle_region_change(attrname, old, new):
+    global region
+    region = region_select.value
+    update()
+    return
+
+
+def handle_case_change(attrname, old, new):
+    global case
+    cases = ["confirmed", "recovered", "death"]
+    case = cases[new]
+    update()
+
+
+# Default value
 stats = PreText(text='', width=500)
 case = "confirmed"
 region = 'Indonesia'
 source = create_source(region, case)
 
+# widgets
+case_select = RadioButtonGroup(
+    labels=["Confirmed", "Recovered", "Death"], active=0)
 region_select = Select(value=region, title='Country/Region',
                        options=list(regions_confirmed))
 
-plt = make_plot(source, case.capitalize() + " case in " + region, 'confirmed')
-controls = column(region_select)
+# onchange
+case_select.on_change('active', handle_case_change)
 region_select.on_change('value', handle_region_change)
+
+plt = make_plot(source, case.capitalize() + " case in " + region, case)
+controls = column(region_select,  case_select)
 curdoc().add_root(row(plt, controls))
 curdoc().title = "Covid-19 case"
