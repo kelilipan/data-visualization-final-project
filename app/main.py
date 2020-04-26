@@ -9,19 +9,21 @@ import numpy as np
 from os.path import dirname, join
 # import data
 df_confirmed = pd.read_csv(
-    join(dirname(__file__), 'data', 'confirmed.csv'), parse_dates=[0])
+    join(dirname(__file__), 'data', 'confirmed.csv'), parse_dates=['date'])
 df_death = pd.read_csv(join(dirname(__file__), 'data',
-                            'death.csv'), parse_dates=[0])
+                            'death.csv'), parse_dates=['date'])
 df_recovered = pd.read_csv(
-    join(dirname(__file__), 'data', 'recovered.csv'), parse_dates=[0])
+    join(dirname(__file__), 'data', 'recovered.csv'), parse_dates=['date'])
 
-df_confirmed.rename(columns={'Unnamed: 0': 'date'}, inplace=True)
-df_death.rename(columns={'Unnamed: 0': 'date'}, inplace=True)
-df_recovered.rename(columns={'Unnamed: 0': 'date'}, inplace=True)
-
-regions_death = df_death.columns[1:]
-regions_confirmed = df_confirmed.columns[1:]
-regions_recovered = df_recovered.columns[1:]
+df_confirmed.drop("Unnamed: 0", axis=1, inplace=True)
+df_death.drop("Unnamed: 0", axis=1, inplace=True)
+df_recovered.drop("Unnamed: 0", axis=1, inplace=True)
+regions_death = df_death.columns[0:-1]
+regions_confirmed = df_confirmed.columns[0:-1]
+regions_recovered = df_recovered.columns[0:-1]
+total_death_case = dict(df_death.iloc[-1, ])
+total_recovered_case = dict(df_recovered.iloc[-1, ])
+total_confirmed_case = dict(df_confirmed.iloc[-1, ])
 
 
 def create_source(region, case, date_range=None):
@@ -33,9 +35,6 @@ def create_source(region, case, date_range=None):
         plot = df_recovered[region]
     df = pd.DataFrame(data={
         'date': df_death['date'],
-        'death': df_death.iloc[-1, df_confirmed.columns.get_loc(region)],
-        'recovered': df_recovered.iloc[-1, df_confirmed.columns.get_loc(region)],
-        'confirmed': df_confirmed.iloc[-1, df_confirmed.columns.get_loc(region)],
         'plot': plot
     })
     if date_range is not None:
@@ -54,7 +53,7 @@ def make_plot(source, title, case='confirmed', sizing_mode=None):
     plt.title.text = title
     plt.line('date', 'plot', source=source, color='green')
     plt.circle('date', 'plot', size=5, source=source)
-    hover = HoverTool(tooltips=[('Date', '@date{%F}'), (case.capitalize()+' case', '@plot')],
+    hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Total case', '@plot')],
                       formatters={'date': 'datetime'})
     plt.add_tools(hover)
     # fixed attributes
@@ -87,9 +86,6 @@ def handle_case_change(attrname, old, new):
 
 def handle_range_change(attrname, old, new):
     global slider_value
-    # print(attrname, old, new)
-    # print(range_slider.value)
-    # print(range_slider.value_as_datetime)
     slider_value = range_slider.value_as_datetime
     update(date_range=slider_value)
 
@@ -136,17 +132,7 @@ confirmed_case = Div(text=total_case_template.format(
     case="Confirmed", color='primary', total=confirmed_count), width_policy="max")
 recovered_case = Div(text=total_case_template.format(
     case="Recovered", color='success', total=recovered_count), width_policy="max")
-testo = "var a = []"
-code = """
-    var death = document.getElementById("total-Death");
-    var recovered = document.getElementById("total-Recovered");
-    var confirmed = document.getElementById("total-Confirmed");
-    death.innerHTML = source.data.death[0]
-    recovered.innerHTML = source.data.recovered[0]
-    confirmed.innerHTML = source.data.confirmed[0]
-"""
 
-js_on_change_region = CustomJS(args=dict(source=source), code=code)
 
 # widgets
 case_select = RadioButtonGroup(
@@ -158,6 +144,19 @@ range_slider = DateRangeSlider(
 button = Button(label="Change theme", button_type="success")
 # onchange
 region_select.on_change('value', handle_region_change)
+
+code = """
+    var death = document.getElementById("total-Death");
+    var recovered = document.getElementById("total-Recovered");
+    var confirmed = document.getElementById("total-Confirmed");
+    var region = cb_obj.value
+    death.innerHTML = death_case[region]
+    recovered.innerHTML = recovered_case[region]
+    confirmed.innerHTML = confirmed_case[region]
+"""
+
+js_on_change_region = CustomJS(
+    args=dict(source=source, death_case=total_death_case, confirmed_case=total_confirmed_case, recovered_case=total_recovered_case), code=code)
 region_select.js_on_change('value', js_on_change_region)
 
 case_select.on_change('active', handle_case_change)
