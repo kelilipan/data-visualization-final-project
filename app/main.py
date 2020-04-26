@@ -74,13 +74,8 @@ def update(date_range=None, force=False):
 
 
 def handle_region_change(attrname, old, new):
-    global region, death_count, confirmed_count, recovered_count, code, js_on_change_region
+    global region
     region = region_select.value
-    death_count = df_death.iloc[-1, df_death.columns.get_loc(region)]
-    confirmed_count = df_confirmed.iloc[-1,
-                                        df_confirmed.columns.get_loc(region)]
-    recovered_count = df_recovered.iloc[-1,
-                                        df_recovered.columns.get_loc(region)]
     update()
 
 
@@ -137,7 +132,6 @@ code = """
     var death = document.getElementById("total-Death");
     var recovered = document.getElementById("total-Recovered");
     var confirmed = document.getElementById("total-Confirmed");
-    console.log(source.data.death[0])
     death.innerHTML = source.data.death[0]
     recovered.innerHTML = source.data.recovered[0]
     confirmed.innerHTML = source.data.confirmed[0]
@@ -156,12 +150,16 @@ range_slider = DateRangeSlider(
 # onchange
 region_select.on_change('value', handle_region_change)
 region_select.js_on_change('value', js_on_change_region)
+
 case_select.on_change('active', handle_case_change)
 range_slider.on_change('value', handle_range_change)
 plt = make_plot(source, case.capitalize() + " case in " +
                 region, case, sizing_mode="stretch_width")
+
+# Layouting
 controls = column(region_select,  case_select, range_slider,
                   death_case, confirmed_case, recovered_case)
 main_layout = row(controls, plt)
+
 curdoc().add_root(main_layout)
 curdoc().title = "Covid-19 case"
