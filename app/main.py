@@ -51,7 +51,7 @@ def make_plot(source, title, case='confirmed', sizing_mode=None):
         plt = figure(x_axis_type='datetime', name='plt')
     else:
         plt = figure(x_axis_type='datetime',
-                     sizing_mode=sizing_mode, name='plt')
+                     sizing_mode=sizing_mode, name='plt', height=800)
     plt.title.text = title
     plt.line('date', 'plot', source=source, color='green')
     plt.circle('date', 'plot', size=5, source=source)
@@ -154,12 +154,12 @@ region_select.js_on_change('value', js_on_change_region)
 case_select.on_change('active', handle_case_change)
 range_slider.on_change('value', handle_range_change)
 plt = make_plot(source, case.capitalize() + " case in " +
-                region, case, sizing_mode="stretch_width")
+                region, case, sizing_mode="stretch_both")
 
 # Layouting
 controls = column(region_select,  case_select, range_slider,
                   death_case, confirmed_case, recovered_case)
-main_layout = row(controls, plt)
+main_layout = row(controls, plt, sizing_mode="stretch_height")
 
 curdoc().add_root(main_layout)
 curdoc().title = "Covid-19 case"
