@@ -1,6 +1,6 @@
 from bokeh.io import curdoc, output_notebook
 from bokeh.models.tools import HoverTool
-from bokeh.models import DateRangeSlider,  ColumnDataSource, PreText, Select, Range1d, RadioButtonGroup, Div, CustomJS
+from bokeh.models import DateRangeSlider,  ColumnDataSource, PreText, Select, Range1d, RadioButtonGroup, Div, CustomJS, Button
 from bokeh.plotting import figure, output_file, show
 from bokeh.layouts import column, row
 import bokeh
@@ -39,7 +39,6 @@ def create_source(region, case, date_range=None):
         'plot': plot
     })
     if date_range is not None:
-        # print(date_range)
         mask = (df['date'] > np.datetime64(date_range[0])) & (
             df['date'] <= np.datetime64(date_range[1]))
         df = df.loc[mask]
@@ -95,6 +94,15 @@ def handle_range_change(attrname, old, new):
     update(date_range=slider_value)
 
 
+def change_theme():
+    global theme
+    if theme == "caliber":
+        theme = 'dark_minimal'
+    else:
+        theme = "caliber"
+    curdoc().theme = theme
+
+
 # Default value
 stats = PreText(text='', width=500)
 case = "confirmed"
@@ -103,6 +111,7 @@ source = create_source(region, case)
 total_data = len(source.data['date'])-1
 case_date = pd.to_datetime(source.data['date'])
 slider_value = case_date[0], case_date[-1]
+theme = 'caliber'
 
 # html template
 total_case_template = ("""
@@ -146,20 +155,22 @@ region_select = Select(value=region, title='Country/Region',
                        options=list(regions_confirmed), name="region_select")
 range_slider = DateRangeSlider(
     start=slider_value[0], end=slider_value[1], value=(0, slider_value[1]), title='Date', name="range_slider")
-
+button = Button(label="Change theme", button_type="success")
 # onchange
 region_select.on_change('value', handle_region_change)
 region_select.js_on_change('value', js_on_change_region)
 
 case_select.on_change('active', handle_case_change)
 range_slider.on_change('value', handle_range_change)
+button.on_click(change_theme)
 plt = make_plot(source, case.capitalize() + " case in " +
                 region, case, sizing_mode="stretch_both")
 
 # Layouting
 controls = column(region_select,  case_select, range_slider,
-                  death_case, confirmed_case, recovered_case)
+                  death_case, confirmed_case, recovered_case, button)
 main_layout = row(controls, plt, sizing_mode="stretch_height")
 
 curdoc().add_root(main_layout)
 curdoc().title = "Covid-19 case"
+curdoc().theme = theme
