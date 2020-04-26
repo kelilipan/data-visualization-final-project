@@ -31,8 +31,12 @@ def create_source(region, case='confirmed'):
     return ColumnDataSource(datasets)
 
 
-def make_plot(source, title, case='confirmed'):
-    plt = figure(x_axis_type='datetime')
+def make_plot(source, title, case='confirmed', sizing_mode=None):
+    if sizing_mode is None:
+        plt = figure(x_axis_type='datetime')
+    else:
+        print(sizing_mode)
+        plt = figure(x_axis_type='datetime', sizing_mode=sizing_mode)
     print(source)
     plt.title.text = title
     plt.line('date', 'region', source=source, color='green')
@@ -51,7 +55,6 @@ def make_plot(source, title, case='confirmed'):
 def update():
     plt.title.text = case.capitalize() + " case in " + region
     newdata = create_source(region, case).data
-    print(region, case)
     source.data.update(newdata)
 
 
@@ -85,7 +88,9 @@ region_select = Select(value=region, title='Country/Region',
 case_select.on_change('active', handle_case_change)
 region_select.on_change('value', handle_region_change)
 
-plt = make_plot(source, case.capitalize() + " case in " + region, case)
+plt = make_plot(source, case.capitalize() + " case in " +
+                region, case, sizing_mode="stretch_width")
 controls = column(region_select,  case_select)
-curdoc().add_root(row(plt, controls))
+main_layout = row(controls, plt)
+curdoc().add_root(main_layout)
 curdoc().title = "Covid-19 case"
