@@ -167,7 +167,7 @@ plt = make_plot(source, case.capitalize() + " case in " +
 
 # Layouting
 controls = column(region_select,  case_select, range_slider,
-                  death_case, confirmed_case, recovered_case, button)
+                  confirmed_case, death_case, recovered_case, button)
 main_layout = row(controls, plt, sizing_mode="stretch_height")
 
 curdoc().add_root(main_layout)
