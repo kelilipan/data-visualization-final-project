@@ -4,7 +4,7 @@ Covid-19 Data visualization
 
 ## Run locally
 
-make sure you have installed the requirement (_see requirement.txt_)
+make sure you have installed the requirement (_see [requirements.txt](https://github.com/raisoturu/data-visualization-final-project/blob/master/requirements.txt)_)
 
 if not, run:
 
