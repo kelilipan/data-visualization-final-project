@@ -37,7 +37,7 @@ def make_plot(source, title, case='confirmed'):
     plt.title.text = title
     plt.line('date', 'region', source=source, color='green')
     plt.circle('date', 'region', size=5, source=source)
-    hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Confirmed case', '@Albania')],
+    hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Confirmed case', '@region')],
                       formatters={'date': 'datetime'})
     plt.add_tools(hover)
     # fixed attributes
