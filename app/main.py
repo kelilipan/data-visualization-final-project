@@ -33,10 +33,18 @@ def create_source(region, case, date_range=None):
         plot = df_death[region]
     elif case == 'recovered':
         plot = df_recovered[region]
-    df = pd.DataFrame(data={
-        'date': df_death['date'],
-        'plot': plot
-    })
+    if case == "all":
+        df = pd.DataFrame(data={
+            'date': df_death['date'],
+            'death': df_death[region],
+            'recovered': df_recovered[region],
+            'plot': df_confirmed[region]
+        })
+    else:
+        df = pd.DataFrame(data={
+            'date': df_death['date'],
+            'plot': plot
+        })
     if date_range is not None:
         mask = (df['date'] > np.datetime64(date_range[0])) & (
             df['date'] <= np.datetime64(date_range[1]))
@@ -82,11 +90,12 @@ def handle_region_change(attrname, old, new):
 
 def handle_case_change(attrname, old, new):
     from pprint import pprint
+    from bokeh.models.glyphs import Line
     global case
-    cases = ["confirmed", "recovered", "death"]
+    cases = ["confirmed", "recovered", "death", 'all']
     case = cases[new]
     update()
-    # pprint(vars(plt))
+
     # pprint(plt.properties(with_bases=True))
     if case == 'confirmed' or case == "all":
         color = 'dodgerblue'
@@ -94,10 +103,32 @@ def handle_case_change(attrname, old, new):
         color = 'red'
     elif case == 'recovered':
         color = "green"
-    plt.legend.items = [
-        (case, [plt.renderers[0]])
-    ]
-    plt.renderers[0].glyph.line_color = color
+
+    if case != "all":
+        plt.legend.items = [
+            (case, [plt.renderers[0]])
+        ]
+        plt.renderers[0].glyph.line_color = color
+        try:
+            plt.renderers[2].visible = False
+            plt.renderers[3].visible = False
+        except IndexError:
+            print(False)
+    else:
+        try:
+            plt.renderers[2].visible = True
+            plt.renderers[3].visible = True
+            plt.legend.items = [
+                ("confirmed", [plt.renderers[0]]),
+                ("death", [plt.renderers[2]]),
+                ("recovered", [plt.renderers[3]])
+            ]
+            plt.renderers[0].glyph.line_color = 'dodgerblue'
+        except IndexError:
+            plt.line('date', 'death', source=source, color='red',
+                     name='death', legend_label="death")
+            plt.line('date', 'recovered', source=source, color='green',
+                     name='death', legend_label="recovered")
 
 
 def handle_range_change(attrname, old, new):
@@ -152,7 +183,7 @@ recovered_case = Div(text=total_case_template.format(
 
 # widgets
 case_select = RadioButtonGroup(
-    labels=["Confirmed", "Recovered", "Death"], active=0, name="case_select")
+    labels=["Confirmed", "Recovered", "Death", "All"], active=0, name="case_select")
 region_select = Select(value=region, title='Country/Region',
                        options=list(regions_confirmed), name="region_select")
 range_slider = DateRangeSlider(
