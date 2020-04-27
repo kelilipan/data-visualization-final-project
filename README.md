@@ -1,6 +1,8 @@
 # data-visualization-final-project
 
-Covid-19 Data visualization
+Covid-19 Data visualization using bokeh python
+
+[live preview](https://visdat-a.herokuapp.com/app)
 
 ## Run locally
 
@@ -12,7 +14,7 @@ if not, run:
 
 Then after the requirement is satisfied run :
 
-    bokeh serve --port 5555 --show src
+    bokeh serve --port 5555 --show app
 
 Open http://localhost:5555/
 
