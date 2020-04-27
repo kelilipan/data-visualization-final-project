@@ -51,8 +51,15 @@ def make_plot(source, title, case='confirmed', sizing_mode=None):
         plt = figure(x_axis_type='datetime',
                      sizing_mode=sizing_mode, name='plt', height=800)
     plt.title.text = title
-    plt.line('date', 'plot', source=source, color='green')
-    plt.circle('date', 'plot', size=5, source=source)
+    if case == 'confirmed':
+        color = 'blue'
+    elif case == 'death':
+        color = 'red'
+    elif case == 'recovered':
+        color = "green"
+    plt.line('date', 'plot', source=source, color=color, name='case')
+    plt.circle('date', 'plot', size=3, color='black', source=source)
+
     hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Total case', '@plot')],
                       formatters={'date': 'datetime'})
     plt.add_tools(hover)
@@ -166,8 +173,18 @@ plt = make_plot(source, case.capitalize() + " case in " +
                 region, case, sizing_mode="stretch_both")
 
 # Layouting
-controls = column(region_select,  case_select, range_slider,
-                  confirmed_case, death_case, recovered_case, button)
+about_text = """
+    <div style="width:300px;">
+        <ul class="list-group">
+            <li class="list-group-item">Anvaqta Tangguh Wisesa</li>
+            <li class="list-group-item">Rachma Indira</li>
+            <li class="list-group-item">Rachmansyah Adhi Widhianto</li>
+        </ul>
+    </div>
+"""
+about = Div(text=about_text, width_policy="max")
+controls = column(region_select,  case_select, range_slider, button,
+                  confirmed_case, death_case, recovered_case,  row(about, sizing_mode="stretch_width"))
 main_layout = row(controls, plt, sizing_mode="stretch_height")
 
 curdoc().add_root(main_layout)
