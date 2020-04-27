@@ -1,6 +1,6 @@
 # data-visualization-final-project
 
-Covid-19 Data visualization using bokeh python
+Covid-19 Data visualization using bokeh python, based on https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases# datasets
 
 [live preview](https://visdat-a.herokuapp.com/app)
 
