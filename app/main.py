@@ -59,7 +59,7 @@ def make_plot(source, title, case='confirmed', sizing_mode=None):
         plt = figure(x_axis_type='datetime',
                      sizing_mode=sizing_mode, name='plt', height=800)
     plt.title.text = title
-    plt.line('date', 'plot', source=source, color='dodgerblue',
+    plt.line('date', 'plot', source=source, color='dodgerblue', line_width=2,
              name='case', legend_label=case)
     plt.circle('date', 'plot', size=5, color="dodgerblue", source=source)
 
@@ -127,10 +127,10 @@ def handle_case_change(attrname, old, new):
             plt.renderers[0].glyph.line_color = 'dodgerblue'
             plt.renderers[1].glyph.line_color = 'dodgerblue'
         except IndexError:
-            plt.line('date', 'death', source=source, color='red',
+            plt.vbar('date', top='recovered', width=1, line_width=5, source=source, color='green',
+                     name='recovered', legend_label="recovered")
+            plt.step(x='date', y='death', source=source, color='red', line_width=2,
                      name='death', legend_label="death")
-            plt.line('date', 'recovered', source=source, color='green',
-                     name='death', legend_label="recovered")
 
 
 def handle_range_change(attrname, old, new):
@@ -156,7 +156,7 @@ source = create_source(region, case)
 total_data = len(source.data['date'])-1
 case_date = pd.to_datetime(source.data['date'])
 slider_value = case_date[0], case_date[-1]
-theme = 'caliber'
+theme = 'dark_minimal'
 
 # html template
 total_case_template = ("""

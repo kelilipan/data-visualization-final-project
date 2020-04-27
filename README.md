@@ -16,7 +16,7 @@ Then after the requirement is satisfied run :
 
     bokeh serve --port 5555 --show app
 
-Open http://localhost:5555/
+or just run `serve.bat`
 
 ## License
 
