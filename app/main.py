@@ -51,18 +51,14 @@ def make_plot(source, title, case='confirmed', sizing_mode=None):
         plt = figure(x_axis_type='datetime',
                      sizing_mode=sizing_mode, name='plt', height=800)
     plt.title.text = title
-    if case == 'confirmed':
-        color = 'blue'
-    elif case == 'death':
-        color = 'red'
-    elif case == 'recovered':
-        color = "green"
-    plt.line('date', 'plot', source=source, color=color, name='case')
+    plt.line('date', 'plot', source=source, color='dodgerblue',
+             name='case', legend_label=case)
     plt.circle('date', 'plot', size=3, color='black', source=source)
 
     hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Total case', '@plot')],
                       formatters={'date': 'datetime'})
     plt.add_tools(hover)
+    plt.legend.location = "top_left"
     # fixed attributes
     plt.xaxis.axis_label = "Date"
     plt.yaxis.axis_label = "Total cases"
@@ -85,10 +81,23 @@ def handle_region_change(attrname, old, new):
 
 
 def handle_case_change(attrname, old, new):
+    from pprint import pprint
     global case
     cases = ["confirmed", "recovered", "death"]
     case = cases[new]
     update()
+    # pprint(vars(plt))
+    # pprint(plt.properties(with_bases=True))
+    if case == 'confirmed' or case == "all":
+        color = 'dodgerblue'
+    elif case == 'death':
+        color = 'red'
+    elif case == 'recovered':
+        color = "green"
+    plt.legend.items = [
+        (case, [plt.renderers[0]])
+    ]
+    plt.renderers[0].glyph.line_color = color
 
 
 def handle_range_change(attrname, old, new):
