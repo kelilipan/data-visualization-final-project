@@ -7,6 +7,7 @@ import bokeh
 import pandas as pd
 import numpy as np
 from os.path import dirname, join
+
 # import data
 df_confirmed = pd.read_csv(
     join(dirname(__file__), 'data', 'confirmed.csv'), parse_dates=['date'])
@@ -18,6 +19,7 @@ df_recovered = pd.read_csv(
 df_confirmed.drop("Unnamed: 0", axis=1, inplace=True)
 df_death.drop("Unnamed: 0", axis=1, inplace=True)
 df_recovered.drop("Unnamed: 0", axis=1, inplace=True)
+
 regions_death = df_death.columns[0:-1]
 regions_confirmed = df_confirmed.columns[0:-1]
 regions_recovered = df_recovered.columns[0:-1]
@@ -121,8 +123,8 @@ def handle_case_change(attrname, old, new):
             plt.renderers[3].visible = True
             plt.legend.items = [
                 ("confirmed", [plt.renderers[0]]),
-                ("death", [plt.renderers[2]]),
-                ("recovered", [plt.renderers[3]])
+                ("recovered", [plt.renderers[2]]),
+                ("death", [plt.renderers[3]])
             ]
             plt.renderers[0].glyph.line_color = 'dodgerblue'
             plt.renderers[1].glyph.line_color = 'dodgerblue'
@@ -191,6 +193,7 @@ region_select = Select(value=region, title='Country/Region',
 range_slider = DateRangeSlider(
     start=slider_value[0], end=slider_value[1], value=(0, slider_value[1]), title='Date', name="range_slider")
 button = Button(label="Change theme", button_type="success")
+
 # onchange
 region_select.on_change('value', handle_region_change)
 
