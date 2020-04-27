@@ -185,7 +185,7 @@ recovered_case = Div(text=total_case_template.format(
 
 # widgets
 case_select = RadioButtonGroup(
-    labels=["Confirmed", "Recovered", "Death", "All"], active=0, name="case_select")
+    labels=["Confirmed", "Recovered", "Death", "All(Beta)"], active=0, name="case_select")
 region_select = Select(value=region, title='Country/Region',
                        options=list(regions_confirmed), name="region_select")
 range_slider = DateRangeSlider(
