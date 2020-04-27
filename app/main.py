@@ -61,7 +61,7 @@ def make_plot(source, title, case='confirmed', sizing_mode=None):
     plt.title.text = title
     plt.line('date', 'plot', source=source, color='dodgerblue',
              name='case', legend_label=case)
-    plt.circle('date', 'plot', size=3, color='black', source=source)
+    plt.circle('date', 'plot', size=5, color="dodgerblue", source=source)
 
     hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Total case', '@plot')],
                       formatters={'date': 'datetime'})
@@ -109,6 +109,7 @@ def handle_case_change(attrname, old, new):
             (case, [plt.renderers[0]])
         ]
         plt.renderers[0].glyph.line_color = color
+        plt.renderers[1].glyph.line_color = color
         try:
             plt.renderers[2].visible = False
             plt.renderers[3].visible = False
@@ -124,6 +125,7 @@ def handle_case_change(attrname, old, new):
                 ("recovered", [plt.renderers[3]])
             ]
             plt.renderers[0].glyph.line_color = 'dodgerblue'
+            plt.renderers[1].glyph.line_color = 'dodgerblue'
         except IndexError:
             plt.line('date', 'death', source=source, color='red',
                      name='death', legend_label="death")
