@@ -7,7 +7,8 @@ import bokeh
 import pandas as pd
 import numpy as np
 from os.path import dirname, join
-
+import locale
+locale.setlocale(locale.LC_ALL, 'ID')
 # import data
 df_confirmed = pd.read_csv(
     join(dirname(__file__), 'data', 'confirmed.csv'), parse_dates=['date'])
@@ -91,14 +92,12 @@ def handle_region_change(attrname, old, new):
 
 
 def handle_case_change(attrname, old, new):
-    from pprint import pprint
     from bokeh.models.glyphs import Line
     global case
     cases = ["confirmed", "recovered", "death", 'all']
     case = cases[new]
     update()
 
-    # pprint(plt.properties(with_bases=True))
     if case == 'confirmed' or case == "all":
         color = 'dodgerblue'
     elif case == 'death':
@@ -165,10 +164,10 @@ total_case_template = ("""
     <div style="width:300px;">
         <div class="card text-center w-100">
             <div class="card-header bg-{color}">
-                <h4 class="m-0">{case}</h4>
+                <h4 class="m-0">{region} {case}</h4>
             </div>
             <div class="card-body p-2">
-                <h3><strong id="total-{case}">{total}</strong></h3>
+                <h3><strong id="total-{region}-{case}">{total}</strong></h3>
             </div>
         </div>
     </div>
@@ -178,11 +177,17 @@ death_count = df_death.iloc[-1, df_death.columns.get_loc(region)]
 confirmed_count = df_confirmed.iloc[-1, df_confirmed.columns.get_loc(region)]
 recovered_count = df_recovered.iloc[-1, df_recovered.columns.get_loc(region)]
 death_case = Div(text=total_case_template.format(
-    case="Death", color='danger', total=death_count), width_policy="max")
+    case="Death", region="Region", color='danger', total=f'{death_count:n}'), width_policy="max")
 confirmed_case = Div(text=total_case_template.format(
-    case="Confirmed", color='primary', total=confirmed_count), width_policy="max")
+    case="Confirmed", region="Region", color='primary', total=f'{confirmed_count:n}'), width_policy="max")
 recovered_case = Div(text=total_case_template.format(
-    case="Recovered", color='success', total=recovered_count), width_policy="max")
+    case="Recovered", region="Region", color='success', total=f'{recovered_count:n}'), width_policy="max")
+global_death_case = Div(text=total_case_template.format(
+    case="Death", region="Global", color='danger', total=f'{sum(df_death.iloc[-1, 1:]):n}'), width_policy="max")
+global_confirmed_case = Div(text=total_case_template.format(
+    case="Confirmed", region="Global", color='primary', total=f"{sum(df_confirmed.iloc[-1, 1:]):n}"), width_policy="max")
+global_recovered_case = Div(text=total_case_template.format(
+    case="Recovered", region="Global", color='success', total=f"{sum(df_recovered.iloc[-1, 1:]):n}"), width_policy="max")
 
 
 # widgets
@@ -198,13 +203,13 @@ button = Button(label="Change theme", button_type="success")
 region_select.on_change('value', handle_region_change)
 
 code = """
-    var death = document.getElementById("total-Death");
-    var recovered = document.getElementById("total-Recovered");
-    var confirmed = document.getElementById("total-Confirmed");
+    var death = document.getElementById("total-Region-Death");
+    var recovered = document.getElementById("total-Region-Recovered");
+    var confirmed = document.getElementById("total-Region-Confirmed");
     var region = cb_obj.value
-    death.innerHTML = death_case[region]
-    recovered.innerHTML = recovered_case[region]
-    confirmed.innerHTML = confirmed_case[region]
+    death.innerHTML = death_case[region].toLocaleString('id')
+    recovered.innerHTML = recovered_case[region].toLocaleString('id')
+    confirmed.innerHTML = confirmed_case[region].toLocaleString('id')
 """
 
 js_on_change_region = CustomJS(
@@ -230,8 +235,10 @@ about_text = """
 about = Div(text=about_text, width_policy="max")
 controls = column(region_select,  case_select, range_slider, button,
                   confirmed_case, death_case, recovered_case,  row(about, sizing_mode="stretch_width"))
-main_layout = row(controls, plt, sizing_mode="stretch_height")
-
+main_layout = column(
+    row(global_confirmed_case, global_death_case, global_recovered_case,
+        sizing_mode="stretch_width", width_policy='max'),
+    row(controls, plt, sizing_mode="stretch_height"), sizing_mode="stretch_both")
 curdoc().add_root(main_layout)
 curdoc().title = "Covid-19 case"
 curdoc().theme = theme
