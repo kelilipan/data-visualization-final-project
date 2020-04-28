@@ -118,6 +118,8 @@ def handle_case_change(attrname, old, new):
             print(False)
     else:
         try:
+            plt.renderers[0].glyph.line_color = 'dodgerblue'
+            plt.renderers[1].glyph.line_color = 'dodgerblue'
             plt.renderers[2].visible = True
             plt.renderers[3].visible = True
             plt.legend.items = [
@@ -125,8 +127,6 @@ def handle_case_change(attrname, old, new):
                 ("recovered", [plt.renderers[2]]),
                 ("death", [plt.renderers[3]])
             ]
-            plt.renderers[0].glyph.line_color = 'dodgerblue'
-            plt.renderers[1].glyph.line_color = 'dodgerblue'
         except IndexError:
             plt.vbar('date', top='recovered', width=1, line_width=5, source=source, color='green',
                      name='recovered', legend_label="recovered")
