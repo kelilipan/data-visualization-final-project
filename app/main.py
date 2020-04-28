@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from os.path import dirname, join
 import locale
-locale.setlocale(locale.LC_ALL, 'ID')
+locale.setlocale(locale.LC_ALL, 'id_ID')
 # import data
 df_confirmed = pd.read_csv(
     join(dirname(__file__), 'data', 'confirmed.csv'), parse_dates=['date'])
@@ -105,7 +105,7 @@ def handle_case_change(attrname, old, new):
     elif case == 'recovered':
         color = "green"
 
-    if case != "all":
+    if case != "all" or case == 'global':
         plt.legend.items = [
             (case, [plt.renderers[0]])
         ]
@@ -164,7 +164,7 @@ total_case_template = ("""
     <div style="width:300px;">
         <div class="card text-center w-100">
             <div class="card-header bg-{color}">
-                <h4 class="m-0">{region} {case}</h4>
+                <h5 class="m-0">{region} {case}</h5>
             </div>
             <div class="card-body p-2">
                 <h3><strong id="total-{region}-{case}">{total}</strong></h3>
