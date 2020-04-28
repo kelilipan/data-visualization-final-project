@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from os.path import dirname, join
 import locale
-locale.setlocale(locale.LC_ALL, 'id_ID')
+locale.setlocale(locale.LC_ALL, 'id_ID.utf8')
 # import data
 df_confirmed = pd.read_csv(
     join(dirname(__file__), 'data', 'confirmed.csv'), parse_dates=['date'])
